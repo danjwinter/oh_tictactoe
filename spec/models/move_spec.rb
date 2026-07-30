@@ -8,6 +8,14 @@ RSpec.describe Move, type: :model do
     expect(move).to be_valid
   end
 
+  it "rejects an out-of-range position" do
+    game = Game.create!
+    move = Move.new(game: game, player: "X", position: 9)
+
+    expect(move).not_to be_valid
+    expect(move.errors[:position]).to be_present
+  end
+
   it "rejects a position that's already taken in the same game" do
     game = Game.create!
     Move.create!(game: game, player: "X", position: 4)

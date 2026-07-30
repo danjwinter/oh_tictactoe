@@ -55,6 +55,7 @@ RSpec.describe "Moves", type: :request do
 
       follow_redirect!
       expect(response.body).to include("X wins!")
+      expect(response.body).to include("New Game")
     end
 
     it "gracefully handles a genuine race on the same cell" do
