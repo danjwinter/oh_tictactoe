@@ -1,0 +1,9 @@
+<div class="board">
+  <% board.cells.each_slice(3) do |row| %>
+    <div class="board-row">
+      <% row.each do |cell| %>
+        <div class="board-cell"><%= cell %></div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

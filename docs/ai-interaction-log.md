@@ -25,3 +25,15 @@ Overridden: added a third `test` service with `RAILS_ENV=test` baked into its en
 **5. Ticket 01: gem install location — image default vs. isolated bind mount**
 Claude's initial `Dockerfile.dev`/`compose.yaml` let Bundler install gems to its default path with no explicit isolation from the bind-mounted app code.
 Overridden: added an explicit `BUNDLE_PATH=vendor/bundle`, bind-mounted from the host at `./vendor/bundle` (gitignored) separately from the rest of the app directory. Reasoning: if someone later ran `bundle install` natively on the host (e.g. macOS) in the same checkout, the container's Linux-compiled native extensions and the host's could otherwise end up sharing a gem path — worth one more explicit volume mount to make that collision structurally impossible rather than relying on it not happening.
+
+**6. Process: ticket checklists left unchecked after ticket 01**
+Claude implemented and committed ticket 01 without going back to check off its acceptance-criteria checkboxes or set its `Status` to done.
+Corrected: going forward, each ticket's checklist and `Status` line get updated as work completes, not just tracked implicitly through commit history. Reasoning: the tickets under `.scratch/tic-tac-toe-mvp/issues/` are the visible record of what's actually finished — leaving them unchecked makes the tracker lie about project state.
+
+**7. Ticket 02: instance variables vs. explicit locals in the controller/view**
+Claude's initial `GamesController#show` set `@game`/`@board` and let the `show.html.erb` template pick them up implicitly.
+Overridden: switched to `render locals: { game:, board: }` and plain local variables in the view. Reasoning: a forgotten instance variable silently evaluates to `nil` in the view (a quiet, hard-to-trace bug); a forgotten local raises `NameError` immediately — loud failure beats silent `nil` here.
+
+**8. Ticket 02: game URLs — auto-incrementing id vs. UUID**
+Claude's initial implementation looked games up by, and rendered URLs with, the default auto-incrementing `id`.
+Overridden: added a separate `uuid` column (generated in a `before_create` callback, primary key unchanged) and overrode `Game#to_param` so URLs and lookups use the UUID instead. Reasoning: a sequential id reveals how many games have been played and lets one game's URL be predicted from another's — cheap, lightweight "security through unguessability" for something with no real auth in scope.
