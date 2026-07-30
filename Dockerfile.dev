@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+#
+# Development/test image. Unlike the production `Dockerfile`, this installs
+# all gem groups (including test), skips asset precompilation, and expects
+# the app code to be bind-mounted over it for live reload — see compose.yaml.
+
+ARG RUBY_VERSION=3.3.4
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+# Installed gems live under ./vendor/bundle, which compose.yaml bind-mounts
+# separately from the rest of the app code. That keeps this container's
+# (Linux) compiled native extensions from ever colliding with gems installed
+# by a host-native `bundle install` (e.g. on macOS) into the same checkout.
+ENV BUNDLE_PATH="vendor/bundle"
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential curl libjemalloc2 libpq-dev libvips libyaml-dev pkg-config postgresql-client && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+COPY . .
+RUN chmod +x bin/docker-entrypoint.dev
+
+ENTRYPOINT ["bin/docker-entrypoint.dev"]
+
+EXPOSE 3000
+
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]

@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+# Dev/test entrypoint: always make sure the database for the current
+# RAILS_ENV exists and is migrated before running whatever command was
+# passed in, so `docker compose run test bin/rspec` (or any other one-off
+# command) never depends on a manual db:prepare step first.
+bin/rails db:prepare
+
+exec "${@}"
