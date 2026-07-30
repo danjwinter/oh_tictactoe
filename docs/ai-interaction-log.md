@@ -22,4 +22,6 @@ Overridden: added a third `test` service with `RAILS_ENV=test` baked into its en
 
 ## Implementation phase
 
-_(entries added here as they occur during coding)_
+**5. Ticket 01: gem install location — image default vs. isolated bind mount**
+Claude's initial `Dockerfile.dev`/`compose.yaml` let Bundler install gems to its default path with no explicit isolation from the bind-mounted app code.
+Overridden: added an explicit `BUNDLE_PATH=vendor/bundle`, bind-mounted from the host at `./vendor/bundle` (gitignored) separately from the rest of the app directory. Reasoning: if someone later ran `bundle install` natively on the host (e.g. macOS) in the same checkout, the container's Linux-compiled native extensions and the host's could otherwise end up sharing a gem path — worth one more explicit volume mount to make that collision structurally impossible rather than relying on it not happening.
