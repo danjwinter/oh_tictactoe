@@ -37,3 +37,11 @@ Overridden: switched to `render locals: { game:, board: }` and plain local varia
 **8. Ticket 02: game URLs — auto-incrementing id vs. UUID**
 Claude's initial implementation looked games up by, and rendered URLs with, the default auto-incrementing `id`.
 Overridden: added a separate `uuid` column (generated in a `before_create` callback, primary key unchanged) and overrode `Game#to_param` so URLs and lookups use the UUID instead. Reasoning: a sequential id reveals how many games have been played and lets one game's URL be predicted from another's — cheap, lightweight "security through unguessability" for something with no real auth in scope.
+
+**9. Process: forgot to run migrations before spinning up containers**
+While manually verifying ticket 02 in the browser, Claude added the UUID migration but started the `web` container without running it first, then spent several steps debugging a resulting 500 error as if it were a CSRF/token problem before the user pointed out the actual cause.
+Corrected: run pending migrations explicitly before booting containers for manual verification. Reasoning: this wasted several debugging steps chasing the wrong hypothesis; the user's interjection ("we don't have the migrations run, and that's a problem") redirected straight to the real cause. Ticket 03 ran migrations proactively before booting, with no repeat of the debugging loop — and the rule is now recorded permanently in `CLAUDE.md` under "Development workflow" so it isn't just tribal knowledge from this one session.
+
+**10. Ticket 03: clickable area only covered a fraction of each board cell**
+Claude's board-cell CSS gave the `<button>` `width/height: 100%`, but that's 100% of its immediate parent — the `<form class="button_to">` Rails wraps `button_to` in — and that form, as a flex item under `align-items: center`, was only as large as its content, not the full cell. The result: only a small clickable area per square instead of the whole cell.
+Corrected, after the user flagged it during manual play-testing: added `.board-cell form { width: 100%; height: 100%; }` so the form (and thus the button inside it) actually fills the cell. Reasoning: `button_to`'s form wrapper is easy to overlook when styling — the fix has to target the actual flex item, not just the element you think of as "the button."

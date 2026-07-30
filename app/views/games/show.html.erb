@@ -1,5 +1,19 @@
 <h1>Tic-Tac-Toe</h1>
 
-<%= render "board", board: board %>
+<% if flash[:alert] %>
+  <p class="error"><%= flash[:alert] %></p>
+<% end %>
 
-<p><%= board.next_turn %> to move</p>
+<%= render "games/board", board: board, game: game %>
+
+<% if board.winner %>
+  <p><%= board.winner %> wins!</p>
+<% elsif board.draw? %>
+  <p>Draw!</p>
+<% else %>
+  <p><%= board.next_turn %> to move</p>
+<% end %>
+
+<% if board.over? %>
+  <%= button_to "New Game", games_path, method: :post %>
+<% end %>

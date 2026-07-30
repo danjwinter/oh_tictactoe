@@ -18,4 +18,5 @@ See [`docs/ai-interaction-log.md`](./docs/ai-interaction-log.md) for the specifi
 
 ## What I'd improve with more time
 
-_(filled in at the end of the session)_
+- **Ticket 03 was scoped too big.** It bundled move submission/turn-taking together with win/draw detection into one ticket, which made for a large diff and a heavy single code-review pass. In hindsight, "make a move and see turns alternate" and "detect and display win/draw" were each substantial enough to be their own ticket — splitting them would have kept each review smaller and each step easier to verify in isolation.
+- _(further notes added at the end of the session)_

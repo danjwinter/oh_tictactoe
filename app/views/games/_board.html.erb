@@ -1,8 +1,15 @@
 <div class="board">
-  <% board.cells.each_slice(3) do |row| %>
+  <% board.cells.each_slice(3).with_index do |row, row_index| %>
     <div class="board-row">
-      <% row.each do |cell| %>
-        <div class="board-cell"><%= cell %></div>
+      <% row.each_with_index do |cell, column_index| %>
+        <% position = (row_index * 3) + column_index %>
+        <div class="board-cell">
+          <% if cell.present? %>
+            <span class="mark"><%= cell %></span>
+          <% elsif !board.over? %>
+            <%= button_to "", game_moves_path(game), params: { move: { position: position } }, class: "cell-button" %>
+          <% end %>
+        </div>
       <% end %>
     </div>
   <% end %>

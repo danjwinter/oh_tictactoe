@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_154801) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_155337) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,4 +20,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_154801) do
     t.string "uuid"
     t.index ["uuid"], name: "index_games_on_uuid", unique: true
   end
+
+  create_table "moves", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "game_id", null: false
+    t.string "player", null: false
+    t.integer "position", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id", "position"], name: "index_moves_on_game_id_and_position", unique: true
+    t.index ["game_id"], name: "index_moves_on_game_id"
+  end
+
+  add_foreign_key "moves", "games"
 end

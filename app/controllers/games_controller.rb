@@ -8,10 +8,7 @@ class GamesController < ApplicationController
   end
 
   def show
-    game = Game.find_by!(uuid: params[:id])
-    # Hardcoded empty until Move exists (ticket 03) — swap for game.moves.
-    board = Board.new([])
-
-    render locals: { game: game, board: board }
+    game = find_game!
+    render locals: { game: game, board: game.board }
   end
 end
