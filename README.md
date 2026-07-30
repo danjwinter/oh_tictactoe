@@ -1,24 +1,21 @@
-# README
+# Oh Tic-Tac-Toe
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+_Draft — filled in as the build progresses; final pass at the end of the session._
 
-Things you may want to cover:
+## Running the app
 
-* Ruby version
+_(Docker Compose instructions go here once `Dockerfile.dev`/`compose.yaml` exist.)_
 
-* System dependencies
+## Approach
 
-* Configuration
+Built with Ruby on Rails, scoped as a human-vs-human hotseat game for the 2-hour limit, with stretch goals (multiplayer via Turbo Streams, a computer opponent, a games index, a Capybara end-to-end test, a JSON API) attempted only if time remains. See `CONTEXT.md` for domain vocabulary and `docs/adr/` for the architectural decisions and their reasoning.
 
-* Database creation
+## AI tools used
 
-* Database initialization
+Built with [Claude Code](https://claude.com/claude-code) using a set of custom "Matt Pocock" skills (`.claude/skills/`) — notably `/grill-with-docs` (an interview-style planning session that forced explicit decisions before writing code, recorded into `CONTEXT.md`/`docs/adr/`) and `/domain-modeling` (captures domain terminology and architectural decisions as they're made). Dictation via Wispr.
 
-* How to run the test suite
+See [`docs/ai-interaction-log.md`](./docs/ai-interaction-log.md) for the specific points where Claude's recommendations were corrected and why.
 
-* Services (job queues, cache servers, search engines, etc.)
+## What I'd improve with more time
 
-* Deployment instructions
-
-* ...
+_(filled in at the end of the session)_
