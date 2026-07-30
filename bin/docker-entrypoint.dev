@@ -1,9 +1,23 @@
 #!/bin/bash -e
 
-# Dev/test entrypoint: always make sure the database for the current
-# RAILS_ENV exists and is migrated before running whatever command was
-# passed in, so `docker compose run test bin/rspec` (or any other one-off
-# command) never depends on a manual db:prepare step first.
+# Dev/test entrypoint: always make sure gems are installed and the database
+# for the current RAILS_ENV exists and is migrated before running whatever
+# command was passed in — so `docker compose up web` (or
+# `docker compose run test bin/rspec`) is a single command on a fresh
+# clone, with no separate manual bundle-install or db:prepare step first.
+#
+# vendor/bundle is bind-mounted from the host and shared by every service
+# in compose.yaml, so if two containers start at once on a fresh clone
+# (e.g. `up web` and `run test` in separate terminals), both would see
+# missing gems and could run `bundle install` into that directory at the
+# same time. flock serializes the check-and-install so only one container
+# does the work; the other waits, then finds it already satisfied.
+mkdir -p vendor/bundle
+(
+  flock -w 300 200
+  bundle check || bundle install
+) 200>vendor/bundle/.bootstrap.lock
+
 bin/rails db:prepare
 
 exec "${@}"

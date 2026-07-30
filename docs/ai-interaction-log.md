@@ -2,6 +2,16 @@
 
 A running record of points during this exercise where Claude's recommendation was corrected or overridden, and why the alternative was the better call. Only disagreements are logged here — points where the recommendation was accepted as-is aren't listed individually; see `CONTEXT.md` and `docs/adr/` for the resulting architecture.
 
+## At a glance
+
+- **Architecture, decided during planning** — `Game` + `Move` records instead of a flattened board column (#1); RSpec instead of Rails' default Minitest (#2); a dedicated, deliberately redundant `Move` validation spec seam on top of request specs (#3); a separate `test` Compose service instead of relying on someone to remember `RAILS_ENV=test` (#4).
+- **Security/robustness, decided during implementation** — isolating gem installs from the host via a bind-mounted `vendor/bundle` (#5); UUID game URLs instead of guessable auto-incrementing ids (#8).
+- **Code-quality habits** — keeping ticket checklists honestly in sync with actual progress (#6); explicit view locals over instance variables so a mistake fails loudly instead of silently rendering `nil` (#7).
+- **Bugs caught by hand, not by a test** — a debugging loop chasing the wrong cause for a forgotten migration (#9); a CSS bug leaving board cells barely clickable, caught during play-testing (#10).
+- **Documentation** — making the whole Docker setup self-bootstrapping so there's nothing to remember before running it (#11); restructuring the README so process, key decisions, and retrospective notes aren't jumbled together (#12).
+
+The full reasoning for each — what Claude proposed, what changed, and why — is below.
+
 ## Planning phase (`/grill-with-docs` session)
 
 **1. Data model: single `Game` model vs. `Game` + `Move`**
@@ -45,3 +55,11 @@ Corrected: run pending migrations explicitly before booting containers for manua
 **10. Ticket 03: clickable area only covered a fraction of each board cell**
 Claude's board-cell CSS gave the `<button>` `width/height: 100%`, but that's 100% of its immediate parent — the `<form class="button_to">` Rails wraps `button_to` in — and that form, as a flex item under `align-items: center`, was only as large as its content, not the full cell. The result: only a small clickable area per square instead of the whole cell.
 Corrected, after the user flagged it during manual play-testing: added `.board-cell form { width: 100%; height: 100%; }` so the form (and thus the button inside it) actually fills the cell. Reasoning: `button_to`'s form wrapper is easy to overlook when styling — the fix has to target the actual flex item, not just the element you think of as "the button."
+
+**11. Ticket 04: "Running the app" required manual setup steps instead of being fully self-bootstrapping**
+Claude's first draft of the README required running `bundle install` and `db:migrate` by hand before `docker compose up web` would work.
+Corrected: updated `bin/docker-entrypoint.dev` to run `bundle check || bundle install` before `db:prepare`, so `docker compose up web` (and `docker compose run test bin/rspec`) are single, self-sufficient commands on a completely fresh clone — verified by wiping `vendor/bundle` and the database volume and running just `docker compose up web`. Reasoning: an evaluator (or any other developer) shouldn't have to remember multi-step setup instructions just to run the app. See [ADR-0004](../docs/adr/0004-dev-only-dockerfile-and-compose.md).
+
+**12. Ticket 04: README structure — approach, process, and retrospective notes conflated**
+Claude's first draft merged the game-mechanics description, the AI-assisted planning process, and retrospective notes (what went wrong vs. what's left for later) into too few sections, and named the skills used without explaining why each one helped or what it was for.
+Corrected: split "Approach" into a game-mechanics paragraph and a separate paragraph naming each skill (`/grill-with-docs`, `/to-spec`, `/to-tickets`, `/implement`) with what it was for and how it helped; split the retrospective into "What didn't go as planned" (ticket 03 sizing, the migration debugging loop, the clickable-cell bug) versus "What I'd improve with more time" (the forward-looking stretch goals) as two distinct sections instead of one jumbled one.
